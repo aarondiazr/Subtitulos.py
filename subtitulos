@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (c) 2012 José Miguel Molina <@_mvader>
+
+import urllib2, re
+
+def get_int(str_out):
+    while True:
+        try:
+            i = int(input(str_out))
+            break
+        except:
+            continue
+    return i
+
+show = raw_input("Nombre de la serie: ")
+season = str(get_int("Temporada: "))
+chapter = str(get_int("Capitulo: "))
+if len(chapter) == 1:
+    chapter = '0' + chapter
+url = 'http://www.subtitulos.es/%s/%sx%s' % (show.lower().replace(' ', '-'), season, chapter)
+search = "http://www.subtitulos.es/updated/5/(?P<code>[0-9]+)/0"
+try:
+    page_content = urllib2.urlopen(url).read()
+    code = re.search(search, page_content).group(1)
+except:
+    print "No encontrado :("
+try:
+    request = urllib2.Request("http://www.subtitulos.es/updated/5/%s/0" % code, headers={"Referer" : url})
+    with open('%s-%sx%s.srt' % (show.lower().replace(' ', '-'), season, chapter), 'w') as f:
+        f.write(urllib2.urlopen(request).read())
+    print "Listo :)"
+except:
+    print "Error al descargar el archivo :("
