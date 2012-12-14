@@ -8,9 +8,9 @@ Uso
 
 Abre la consola y escribe:
 ```bash
-subtitulos
+subtitulos -s "Nombre de la serie" -t Temporada -c Capitulo
 ```
-Solo tienes que seguir instrucciones.
+Nota: las comillas **NO** son opcionales.
 
 Instalación
 ============

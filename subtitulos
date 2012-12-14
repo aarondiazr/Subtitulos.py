@@ -2,33 +2,42 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 José Miguel Molina <@_mvader>
 
-import urllib2, re
+import urllib2, re, sys
 
-def get_int(str_out):
-    while True:
-        try:
-            i = int(input(str_out))
-            break
-        except:
-            continue
-    return i
+args = {'-s' : '', '-t' : '', '-c' : ''}
+next_arg = ''
+for arg in sys.argv[1:]:
+    if arg in args.keys():
+        next_arg = arg
+    elif next_arg != '':
+        args[next_arg] = arg
+        next_arg = ''
+    else:
+        print "Parametro invalido %s" % arg
+        break
 
-show = raw_input("Nombre de la serie: ")
-season = str(get_int("Temporada: "))
-chapter = str(get_int("Capitulo: "))
-if len(chapter) == 1:
-    chapter = '0' + chapter
-url = 'http://www.subtitulos.es/%s/%sx%s' % (show.lower().replace(' ', '-'), season, chapter)
-search = "http://www.subtitulos.es/updated/5/(?P<code>[0-9]+)/0"
-try:
-    page_content = urllib2.urlopen(url).read()
-    code = re.search(search, page_content).group(1)
-except:
-    print "No encontrado :("
-try:
-    request = urllib2.Request("http://www.subtitulos.es/updated/5/%s/0" % code, headers={"Referer" : url})
-    with open('%s-%sx%s.srt' % (show.lower().replace(' ', '-'), season, chapter), 'w') as f:
-        f.write(urllib2.urlopen(request).read())
-    print "Listo :)"
-except:
-    print "Error al descargar el archivo :("
+if not args['-s'] or not args['-c']  or not args['-t']:
+    print "Debes hacer una peticion del tipo subtitulos -s \"Nombre de la serie\" -t Temporada -c Capitulo"
+else:
+    show = args['-s']
+    season = args['-t']
+    chapter = args['-c']
+
+    if len(chapter) == 1:
+        chapter = '0' + chapter
+    url = 'http://www.subtitulos.es/%s/%sx%s' % (show.lower().replace(' ', '-'), season, chapter)
+    search = "http://www.subtitulos.es/updated/5/(?P<code>[0-9]+)/0"
+
+    try:
+        page_content = urllib2.urlopen(url).read()
+        code = re.search(search, page_content).group(1)
+    except:
+        print "No encontrado :("
+
+    try:
+        request = urllib2.Request("http://www.subtitulos.es/updated/5/%s/0" % code, headers={"Referer" : url})
+        with open('%s-%sx%s.srt' % (show.lower().replace(' ', '-'), season, chapter), 'w') as f:
+            f.write(urllib2.urlopen(request).read())
+        print "Listo :)"
+    except:
+        print "Error al descargar el archivo :("
