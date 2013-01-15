@@ -27,12 +27,16 @@ else:
         chapter = '0' + chapter
     url = 'http://www.subtitulos.es/%s/%sx%s' % (show.lower().replace(' ', '-'), season, chapter)
     search = "http://www.subtitulos.es/updated/5/(?P<code>[0-9]+)/0"
+    search_alt = "http://www.subtitulos.es/updated/4/(?P<code>[0-9]+)/0"
 
+    page_content = urllib2.urlopen(url).read()
     try:
-        page_content = urllib2.urlopen(url).read()
         code = re.search(search, page_content).group(1)
     except:
-        print "No encontrado :("
+        try:
+            code = re.search(search_alt, page_content).group(1)
+        except:
+            print "No encontrado :("
 
     try:
         request = urllib2.Request("http://www.subtitulos.es/updated/5/%s/0" % code, headers={"Referer" : url})
