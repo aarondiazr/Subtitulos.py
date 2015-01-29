@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 José Miguel Molina <@_mvader> <hi@mvader.me>
+# Fixed by Aarón Díaz R. <@AaronDiazR>
 
-import urllib2, re, sys
+import pycurl, urllib2, re, sys
 
 args = {'-s' : '', '-t' : '', '-c' : ''}
 next_arg = ''
@@ -28,20 +29,39 @@ else:
     url = 'http://www.subtitulos.es/%s/%sx%s' % (show.lower().replace(' ', '-'), season, chapter)
     search = "http://www.subtitulos.es/updated/5/(?P<code>[0-9]+)/0"
     search_alt = "http://www.subtitulos.es/updated/4/(?P<code>[0-9]+)/0"
-
-    page_content = urllib2.urlopen(url).read()
+    codigo = ""
+    
+    hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+       'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+       'Accept-Encoding': 'none',
+       'Accept-Language': 'es-ES,es;q=0.8',
+       'Connection': 'keep-alive',
+       'Host': 'www.subtitulos.es'}
+       
+    page_content_req = urllib2.Request(url, headers=hdr)
+    page_content = urllib2.urlopen(page_content_req).read()
     try:
         code = re.search(search, page_content).group(1)
+        codigo = "5"
     except:
         try:
             code = re.search(search_alt, page_content).group(1)
+            codigo = "4"
         except:
             print "No encontrado :("
 
     try:
-        request = urllib2.Request("http://www.subtitulos.es/updated/5/%s/0" % code, headers={"Referer" : url})
-        with open('%s-%sx%s.srt' % (show.lower().replace(' ', '-'), season, chapter), 'w') as f:
-            f.write(urllib2.urlopen(request).read())
+        c = pycurl.Curl()
+        c.setopt(c.URL, "http://www.subtitulos.es/updated/%s/%s/0" % (codigo, code))
+        c.setopt(c.HTTPHEADER, ['Accept-Encoding: gzip, deflate, sdch',
+                                'Accept-Language: es-ES,es;q=0.8',
+                                'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36', 
+                                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8', 
+                                'Referer: %s' % (url)])
+        f = open('%s-%sx%s.srt' % (show.lower().replace(' ', '-'), season, chapter), 'wb')
+        c.setopt(c.WRITEDATA, f)
+        c.perform()
         print "Listo :)"
     except:
         print "Error al descargar el archivo :("
