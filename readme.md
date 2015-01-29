@@ -12,6 +12,10 @@ subtitulos -s "Nombre de la serie" -t Temporada -c Capitulo
 ```
 Nota: las comillas **NO** son opcionales.
 
+Dependencias
+============
+PyCurl
+
 Instalación
 ============
 
