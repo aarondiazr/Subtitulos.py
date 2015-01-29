@@ -20,7 +20,7 @@ Instalación
 ============
 
 ```bash
-sudo curl https://raw.github.com/mvader/Subtitulos.py/master/subtitulos -o /usr/local/bin/subtitulos;
+sudo curl https://raw.github.com/aarondiazr/Subtitulos.py/master/subtitulos -o /usr/local/bin/subtitulos;
 sudo chmod +x /usr/local/bin/subtitulos
 ```
 ¿Fácil, no?
